@@ -10,7 +10,6 @@ env/
 # Environment Variables
 .env
 
-
 # OS specific
 .DS_Store
 Thumbs.db

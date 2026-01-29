@@ -114,31 +114,34 @@ class MasterAgent(BaseAgent):
         return self.generate(prompt)
 
     def chat(self, user_message: str, history: list, context_data: str) -> str:
-        # Construct messages with history
-        messages = [
-            {"role": "system", "content": f"You are RiskPilot, an AI Risk Intelligence System.\nProject Context:\n{context_data}"}
-        ]
-        
-        # Add history (simple mapping)
-        for msg in history:
-            role = "assistant" if msg['message'] == "System: Initial Risk Analysis" else "user" 
-            # Note: Our DB schema might need better role separation, but for now:
-            # Check if it was me (assistant) or user. 
-            # In our main.py, we stored user msg in 'message' and AI reply in 'response'. 
-            # So we append both.
-            messages.append({"role": "user", "content": msg['message']})
-            messages.append({"role": "assistant", "content": msg['response']})
-            
-        messages.append({"role": "user", "content": user_message})
-
-        if not self.client:
-             return "Error: AI Config Missing"
-
         try:
+            # Construct messages with history
+            messages = [
+                {"role": "system", "content": f"You are RiskPilot, an AI Risk Intelligence System.\nProject Context:\n{context_data}"}
+            ]
+            
+            # Add history (simple mapping)
+            if history:
+                for msg in history:
+                    # Sanitize content to ensure it's a string
+                    u_msg = str(msg.get('message') or "")
+                    a_res = str(msg.get('response') or "")
+                    
+                    if u_msg:
+                        messages.append({"role": "user", "content": u_msg})
+                    if a_res:
+                        messages.append({"role": "assistant", "content": a_res})
+                
+            messages.append({"role": "user", "content": user_message})
+
+            if not self.client:
+                 return "Error: AI Config Missing (Check GROQ_API_KEY)"
+
             chat_completion = self.client.chat.completions.create(
                 messages=messages,
                 model=self.model_name,
             )
             return chat_completion.choices[0].message.content
         except Exception as e:
+            print(f"Agent Chat Error: {e}")
             return f"Error generating response: {str(e)}"

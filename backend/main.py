@@ -6,6 +6,7 @@ from supabase import create_client, Client
 from dotenv import load_dotenv
 from typing import List, Optional
 import uuid
+from datetime import datetime
 
 # Import our models and agents
 from backend.models import ProjectCreate, ProjectResponse, ChatRequest, ChatResponse, InitialAnalysisResponse
