@@ -1,0 +1,3 @@
+name,description,start_date,deadline,parent_company,business_partner,budget,milestones
+Galaxy S25 Chipset,Next-gen 3nm AI processor design,2024-01-10,2024-12-20,Samsung Electronics,TSMC,5000000,"[{'name': 'Tape Out', 'date': '2024-08-01'}, {'name': 'Mass Production', 'date': '2024-11-01'}]"
+Foldable OLED R&D,Ultra-durable foldable screen tech,2023-06-01,2025-01-01,Samsung Display,Corning,3000000,"[{'name': 'Prototype V1', 'date': '2024-01-15'}, {'name': 'Stress Testing', 'date': '2024-06-30'}]"

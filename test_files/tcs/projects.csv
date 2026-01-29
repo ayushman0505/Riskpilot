@@ -1,0 +1,3 @@
+name,description,start_date,deadline,parent_company,business_partner,budget,milestones
+Banking Core Upgrade,Migrate legacy banking system to cloud,2024-01-01,2025-06-30,TCS,SBI Bank,1200000,"[{'name': 'Requirement Analysis', 'date': '2024-03-01'}, {'name': 'UAT Phase 1', 'date': '2024-12-01'}]"
+Insurance Claim AI,Automate claim processing using AI,2023-09-01,2024-09-01,TCS,Allianz,800000,"[{'name': 'Model Training', 'date': '2024-02-01'}, {'name': 'Pilot Launch', 'date': '2024-06-01'}]"

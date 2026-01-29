@@ -1,0 +1,4 @@
+id,name,role,department,join_date,performance_ratings,attendance_record,skills
+F001,John Doe,Staff Software Engineer,AI Research,2017-06-15,"{'2023': 4.8, '2024': 4.9}","{'absent': 10, 'late': 0}","['Python', 'TensorFlow', 'Distributed Systems']"
+F002,Emily Chen,Product Manager,VR Division,2020-03-10,"{'2023': 3.9, '2024': 3.5}","{'absent': 0, 'late': 10}","['Product Roadmap', 'User Research']"
+F003,Michael Brown,Site Reliability Engineer,Infrastructure,2022-11-01,"{'2023': 4.5, '2024': 4.6}","{'absent': 1, 'late': 1}","['Golang', 'Kubernetes', 'Terraform']"

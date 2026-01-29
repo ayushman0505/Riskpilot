@@ -58,6 +58,17 @@ class RAGSystem:
             data = supabase.table("documents").insert(chunk_batch).execute()
         return len(chunk_batch)
 
+    def clean_project_data(self, project_id: str):
+        """Remove all documents for a specific project to prevent stale data."""
+        try:
+            # We assume metadata contains 'project_id'
+            # Note: This requires the metadata column to be queried appropriately. 
+            # In Supabase filter, we access jsonb fields using ->> operator string matching
+            supabase.table("documents").delete().eq("metadata->>project_id", str(project_id)).execute()
+            print(f"Cleaned old vectors for project: {project_id}")
+        except Exception as e:
+            print(f"Error cleaning project data: {e}")
+
     def retrieve(self, query: str, limit: int = 3) -> List[str]:
         """Find relevant context for a query."""
         query_vector = self.embed_text(query)
@@ -69,7 +80,7 @@ class RAGSystem:
         
         params = {
             "query_embedding": query_vector,
-            "match_threshold": 0.5,
+            "match_threshold": 0.0, # Debug: Lowered to catch any match
             "match_count": limit
         }
         

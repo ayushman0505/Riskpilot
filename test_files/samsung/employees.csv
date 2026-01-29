@@ -1,0 +1,4 @@
+id,name,role,department,join_date,performance_ratings,attendance_record,skills
+S001,Min-Soo Kim,Chip Designer,R&D,2015-03-01,"{'2023': 4.9, '2024': 4.9}","{'absent': 0, 'late': 0}","['Verilog', 'VLSI', 'C++']"
+S002,Ji-Young Lee,Supply Chain Manager,Operations,2018-07-20,"{'2023': 4.3, '2024': 4.5}","{'absent': 3, 'late': 2}","['Logistics', 'SAP', 'Vendor Management']"
+S003,David Park,Product Owner,Mobile,2021-01-10,"{'2023': 4.0, '2024': 3.8}","{'absent': 1, 'late': 5}","['Product Strategy', 'Marketing']"

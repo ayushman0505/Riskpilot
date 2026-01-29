@@ -120,6 +120,30 @@ async def init_chat(
                  print("Warning: 'amount' column not found in financials CSV")
         except Exception as e:
             print(f"Error Aggregating Financials: {e}")
+
+        # --- NEW: RAG Ingestion Pipeline ---
+        try:
+            from backend.agent import rag_system
+            
+            # 1. Clean old vectors
+            rag_system.clean_project_data(str(project_id))
+            
+            # 2. Ingest Files
+            count = 0
+            if not proj_df.empty:
+                count += rag_system.ingest_csv(proj_df.to_csv(index=False), {"project_id": str(project_id), "type": "Projects"})
+                
+            if not emp_df.empty:
+                count += rag_system.ingest_csv(emp_df.to_csv(index=False), {"project_id": str(project_id), "type": "Employees"})
+                
+            if not fin_df.empty:
+                count += rag_system.ingest_csv(fin_df.to_csv(index=False), {"project_id": str(project_id), "type": "Financials"})
+                
+            print(f"✅ RAG Ingestion Complete. {count} chunks indexed.")
+            
+        except Exception as e:
+            print(f"⚠️ RAG Ingestion Failed: {e}")
+        # -----------------------------------
         
         # 4. Run Agents
         emp_agent = EmployeeRiskAgent()
@@ -170,7 +194,8 @@ def chat_continue(project_id: uuid.UUID, request: ChatRequest):
         # but for this flow let's rely on history or a generic prompt for now.
         context_data = "Refer to previous analysis." 
         
-        ai_response = master_agent.chat(request.message, history, context_data)
+        # Updated to pass project_id for Caching
+        ai_response = master_agent.chat(request.message, history, str(project_id))
 
         # Save to DB
         new_entry = {

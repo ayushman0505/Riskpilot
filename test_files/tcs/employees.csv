@@ -1,0 +1,4 @@
+id,name,role,department,join_date,performance_ratings,attendance_record,skills
+T001,Rajesh Kumar,System Engineer,IT Services,2020-05-15,"{'2023': 4.1, '2024': 4.2}","{'absent': 5, 'late': 2}","['Java', 'Spring Boot', 'SQL']"
+T002,Sneha Patil,Business Analyst,BFSI,2019-08-10,"{'2023': 4.5, '2024': 4.6}","{'absent': 2, 'late': 1}","['Requirement Gathering', 'JIRA']"
+T003,Amit Singh,Cloud Architect,Infrastructure,2018-02-20,"{'2023': 4.8, '2024': 4.7}","{'absent': 0, 'late': 0}","['AWS', 'Azure', 'Kubernetes']"
