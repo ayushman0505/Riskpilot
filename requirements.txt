@@ -7,3 +7,10 @@ groq
 python-dotenv
 plotly
 python-multipart
+langchain
+langchain-community
+langchain-core
+langchain-postgres
+redis
+sentence-transformers
+pgvector

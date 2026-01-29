@@ -1,5 +1,44 @@
 -- Enable the pgcrypto extension to allow UUID generation
 create extension if not exists "pgcrypto";
+-- Enable the vector extension for RAG
+create extension if not exists "vector";
+
+-- DOCUMENTS TABLE (For RAG)
+create table if not exists documents (
+  id uuid default gen_random_uuid() primary key,
+  content text,
+  metadata jsonb,
+  embedding vector(384) -- Using 384 dimensions for all-MiniLM-L6-v2
+);
+
+-- MATCH DOCUMENTS FUNCTION (RPC)
+-- This function allows us to search for similar documents using cosine similarity
+create or replace function match_documents (
+  query_embedding vector(384),
+  match_threshold float,
+  match_count int
+)
+returns table (
+  id uuid,
+  content text,
+  metadata jsonb,
+  similarity float
+)
+language plpgsql
+as $$
+begin
+  return query
+  select
+    documents.id,
+    documents.content,
+    documents.metadata,
+    1 - (documents.embedding <=> query_embedding) as similarity
+  from documents
+  where 1 - (documents.embedding <=> query_embedding) > match_threshold
+  order by documents.embedding <=> query_embedding
+  limit match_count;
+end;
+$$;
 
 -- PROJECTS TABLE
 create table if not exists projects (
