@@ -1,0 +1,6 @@
+id,name,role,department,join_date,performance_ratings,attendance_record,skills
+E001,Alice Johnson,Senior Developer,Engineering,2022-03-15,"{'2023': 4.5, '2024': 4.7}","{'absent': 2, 'late': 1}","['Python', 'FastAPI', 'React']"
+E002,Bob Smith,Project Manager,Product,2021-06-10,"{'2023': 4.2, '2024': 4.0}","{'absent': 5, 'late': 3}","['Agile', 'JIRA', 'Scrum']"
+E003,Charlie Davis,UX Designer,Design,2023-01-20,"{'2023': 4.8, '2024': 4.9}","{'absent': 0, 'late': 0}","['Figma', 'Sketch', 'CSS']"
+E004,Diana Evans,Data Analyst,Data,2022-11-05,"{'2023': 3.5, '2024': 3.2}","{'absent': 12, 'late': 8}","['SQL', 'Pandas', 'Tableau']"
+E005,Ethan Hunt,Security Specialist,Security,2020-02-01,"{'2023': 4.9, '2024': 5.0}","{'absent': 1, 'late': 0}","['Cybersecurity', 'Network Security']"

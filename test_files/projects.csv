@@ -1,0 +1,4 @@
+name,description,start_date,deadline,parent_company,business_partner,budget,milestones
+Gemini Integration,Integrate Gemini AI into existing platform,2024-01-15,2024-06-30,TechCorp,Google Cloud,50000,"[{'name': 'API Setup', 'date': '2024-02-01'}, {'name': 'Beta Launch', 'date': '2024-05-01'}]"
+Legacy Migration,Migrate legacy MongoDB to Supabase,2023-11-01,2024-03-31,TechCorp,None,30000,"[{'name': 'Schema Design', 'date': '2023-12-01'}, {'name': 'Data Transfer', 'date': '2024-02-15'}]"
+Mobile App Revamp,Redesign iOS and Android apps,2024-02-01,2024-08-15,TechCorp,AppStudio,75000,"[{'name': 'UI/UX Finalize', 'date': '2024-03-01'}, {'name': 'Dev Sprint 1', 'date': '2024-04-15'}]"

@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+streamlit
+supabase
+pandas
+groq
+python-dotenv
+plotly
+python-multipart

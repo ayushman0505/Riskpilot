@@ -1,0 +1,6 @@
+date,category,amount,description,approved_by,budget_category,project_name
+2024-01-20,Software License,5000,Gemini API Credits,Bob Smith,Operational,Gemini Integration
+2024-02-05,Contractor,12000,Frontend Freelancer payment,Alice Johnson,Labor,Mobile App Revamp
+2024-02-10,Server Costs,1500,AWS Monthly Bill,Bob Smith,Infrastructure,Legacy Migration
+2024-03-01,Travel,3500,Team Offsite,Charlie Davis,Travel,Gemini Integration
+2024-03-15,Equipment,8000,New Laptops for Dev Team,Bob Smith,Assets,Mobile App Revamp
