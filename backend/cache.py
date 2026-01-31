@@ -13,9 +13,9 @@ try:
     redis_client = redis.from_url(REDIS_URL, decode_responses=True)
     # Test connection
     redis_client.ping()
-    print("✅ Connected to Redis")
+    print(" Connected to Redis")
 except Exception as e:
-    print(f"⚠️ Redis Connection Failed: {e}")
+    print(f" Redis Connection Failed: {e}")
     redis_client = None
 
 class CacheSystem:
@@ -42,4 +42,4 @@ class CacheSystem:
         
         key = self._generate_key(project_id, query)
         redis_client.setex(key, self.ttl, response)
-        print(f"💾 Saved to Cache: '{query}'")
+        print(f" Saved to Cache: '{query}'")

@@ -42,11 +42,11 @@ def run_chat_loop():
             if res.status_code == 200:
                 print(f"AI Response: {res.json()['response'][:50]}...")
             else:
-                print(f"❌ ERROR: {res.text}")
+                print(f" ERROR: {res.text}")
                 break
                 
         except Exception as e:
-            print(f"❌ Exception: {e}")
+            print(f"Exception: {e}")
             break
         
         time.sleep(1) # Be nice to rate limits

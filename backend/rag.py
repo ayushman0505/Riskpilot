@@ -10,13 +10,6 @@ load_dotenv()
 
 # --- Configuration ---
 SUPABASE_URL = os.getenv("SUPABASE_URL")
-# For PGVector, we need the standard Postgres connection string, not the REST URL
-# Usually: postgresql://postgres:[PASSWORD]@db.[REF].supabase.co:5432/postgres
-# In a real app we'd ask user for this. For now let's assume they have it or we try to derive.
-# But Supabase Python client is for REST. LangChain PGVector needs SQL.
-# WORKAROUND: For this "Beginner Friendly" custom bot, we will use a Simpler Approach:
-# We will use 'supabase-python' to do the insert manually, and 'sentence-transformers' for embedding.
-
 from supabase import create_client, Client
 from sentence_transformers import SentenceTransformer
 
@@ -72,11 +65,7 @@ class RAGSystem:
     def retrieve(self, query: str, limit: int = 3) -> List[str]:
         """Find relevant context for a query."""
         query_vector = self.embed_text(query)
-        
-        # Supabase RPC call (we need to create this function in SQL)
-        # But wait! We didn't create the match_documents function yet.
-        # We should use the python client's simple select if possible, but vector search requires RPC usually.
-        # Let's try to query the RPC 'match_documents'
+
         
         params = {
             "query_embedding": query_vector,

@@ -63,7 +63,7 @@ def create_project(name, description, budget):
 
 # --- UI Layout ---
 
-st.title("✈️ RiskPilot: Corporate Risk Intelligence")
+st.title(" RiskPilot: Corporate Risk Intelligence")
 
 # Sidebar
 st.sidebar.header("Navigation")

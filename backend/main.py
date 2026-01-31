@@ -142,7 +142,7 @@ async def init_chat(
             print(f"✅ RAG Ingestion Complete. {count} chunks indexed.")
             
         except Exception as e:
-            print(f"⚠️ RAG Ingestion Failed: {e}")
+            print(f" RAG Ingestion Failed: {e}")
         # -----------------------------------
         
         # 4. Run Agents
