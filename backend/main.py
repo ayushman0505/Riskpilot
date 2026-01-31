@@ -6,7 +6,9 @@ from supabase import create_client, Client
 from dotenv import load_dotenv
 from typing import List, Optional
 import uuid
+import uuid
 from datetime import datetime
+import ast # For parsing list strings in CSV
 
 # Import our models and agents
 from backend.models import ProjectCreate, ProjectResponse, ChatRequest, ChatResponse, InitialAnalysisResponse
@@ -21,6 +23,16 @@ from backend.agent import (
 load_dotenv()
 
 app = FastAPI(title="RiskPilot API", description="Backend for Corporate Risk Intelligence System")
+
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"], # In production, replace with specific frontend URL
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Initialize Supabase
 url: str = os.environ.get("SUPABASE_URL")
@@ -104,22 +116,82 @@ async def init_chat(
         fin_text = fin_df.to_string(index=False)
 
         # 3. Calculate Real Financial Aggregates
+
+        # 3. Calculate Real Financial Aggregates AND Persist Data
         try:
-            # Clean 'amount' column (remove currency symbols if any) and sum
+            # A. Financials
             if 'amount' in fin_df.columns:
-                 # Check if project_name column exists to filter? 
-                 # For now, simplistic sum of the uploaded file
-                 total_spend = pd.to_numeric(fin_df['amount'], errors='coerce').sum()
-                 total_spend = float(total_spend) # Ensure native python float
+                 # 1. Clean old records for this project
+                 get_db().table("financial_records").delete().eq("project_id", str(project_id)).execute()
                  
-                 print(f"Calculated Total Spend: {total_spend}")
+                 # 2. Prepare new records
+                 fin_records = []
+                 total_spend = 0.0
+                 for _, row in fin_df.iterrows():
+                     amt = pd.to_numeric(row.get('amount', 0), errors='coerce')
+                     if pd.isna(amt): amt = 0.0
+                     total_spend += float(amt)
+                     
+                     record = {
+                         "project_id": str(project_id),
+                         "date": row.get('date', datetime.now().date().isoformat()),
+                         "category": row.get('category', 'Uncategorized'),
+                         "amount": float(amt),
+                         "description": row.get('description', ''),
+                         "approved_by": row.get('approved_by', ''),
+                         "budget_category": row.get('budget_category', '')
+                     }
+                     fin_records.append(record)
                  
-                 # Update Supabase
+                 # 3. Insert new records
+                 if fin_records:
+                     get_db().table("financial_records").insert(fin_records).execute()
+                     print(f"Persisted {len(fin_records)} financial records.")
+
+                 # 4. Update Project Total Spend
                  get_db().table("projects").update({"actual_spend": total_spend}).eq("id", str(project_id)).execute()
+                 print(f"Calculated Total Spend: {total_spend}")
             else:
                  print("Warning: 'amount' column not found in financials CSV")
+            
+            # B. Employees
+            if not emp_df.empty:
+                emp_records = []
+                emp_ids = []
+                for _, row in emp_df.iterrows():
+                    # Parse skills from string "['A', 'B']" to list
+                    skills_list = []
+                    raw_skills = row.get('skills', '[]')
+                    try:
+                        if isinstance(raw_skills, str):
+                            skills_list = ast.literal_eval(raw_skills)
+                    except:
+                        skills_list = []
+
+                    rec = {
+                        "id": str(row.get('id', uuid.uuid4())), # Fallback if no ID
+                        "name": row.get('name', 'Unknown'),
+                        "role": row.get('role', 'Unknown'),
+                        "department": row.get('department', 'Unknown'),
+                        "join_date": row.get('join_date', None),
+                        "skills": skills_list
+                        # Skip complex jsonb fields for now to keep it simple, or add if needed
+                    }
+                    emp_records.append(rec)
+                    emp_ids.append(rec['id'])
+                
+                # Upsert Employees (Global Table)
+                if emp_records:
+                    get_db().table("employees").upsert(emp_records).execute()
+                    print(f"Upserted {len(emp_records)} employee records.")
+                
+                # Link to Project
+                get_db().table("projects").update({"team_members": emp_ids}).eq("id", str(project_id)).execute()
+
         except Exception as e:
-            print(f"Error Aggregating Financials: {e}")
+            print(f"Error Persisting Data: {e}")
+            import traceback
+            traceback.print_exc()
 
         # --- NEW: RAG Ingestion Pipeline ---
         try:
@@ -216,4 +288,32 @@ def get_chat_history(project_id: uuid.UUID):
         response = get_db().table("chat_history").select("*").eq("project_id", str(project_id)).order("timestamp").execute()
         return response.data
     except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/projects/{project_id}/stats")
+def get_project_stats(project_id: uuid.UUID):
+    """Fetch aggregated statistics for dashboard charts."""
+    try:
+        # 1. Fetch Financials
+        fin_res = get_db().table("financial_records").select("*").eq("project_id", str(project_id)).execute()
+        fin_data = fin_res.data
+        
+        # 2. Fetch Project Team
+        proj_res = get_db().table("projects").select("team_members").eq("id", str(project_id)).execute()
+        team_ids = proj_res.data[0].get("team_members", []) if proj_res.data else []
+        
+        # 3. Fetch Employees
+        emp_data = []
+        if team_ids:
+            # 'in' filter expects a list formatted as tuple-string usually? Or just list. 
+            # Supabase-py 'in_' takes column and list.
+            emp_res = get_db().table("employees").select("*").in_("id", team_ids).execute()
+            emp_data = emp_res.data
+            
+        return {
+            "financials": fin_data,
+            "employees": emp_data
+        }
+    except Exception as e:
+        print(f"Error fetching stats: {e}")
         raise HTTPException(status_code=500, detail=str(e))

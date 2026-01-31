@@ -6,7 +6,11 @@ import plotly.graph_objects as go
 from datetime import datetime
 
 # Configuration
-API_URL = "http://127.0.0.1:8000"
+import os
+
+# Configuration
+# Default to localhost for local dev, but override with env var in production
+API_URL = os.getenv("API_URL", "http://127.0.0.1:8000")
 st.set_page_config(page_title="RiskPilot", page_icon="✈️", layout="wide")
 
 # Custom CSS for "professional" look
@@ -147,35 +151,66 @@ elif page == "Dashboard":
             col3.metric("Progress", f"{progress}%")
             
             # Dummy Visualizations (since we aren't querying deep stats yet)
+            # Fetch Real Stats
+            stats = {}
+            try:
+                 stats_res = requests.get(f"{API_URL}/projects/{project_id}/stats")
+                 if stats_res.status_code == 200:
+                     stats = stats_res.json()
+            except:
+                 st.warning("Could not fetch detailed stats.")
+
+            fin_data = stats.get("financials", [])
+            emp_data = stats.get("employees", [])
+
             col_a, col_b = st.columns(2)
             
             with col_a:
-                st.write("#### Budget Risk (Spend vs Budget)")
-                
-                # Calculate metric based on real data
-                budget = current_project.get('budget', 1) # Avoid div by zero
-                spend = current_project.get('actual_spend', 0)
-                if budget <= 0: budget = 1
-                
-                risk_score = min(round((spend / budget) * 100, 1), 100)
-                
-                # Gauge Chart
-                fig_gauge = go.Figure(go.Indicator(
-                    mode = "gauge+number",
-                    value = risk_score, 
-                    title = {'text': "Budget Utilization %"},
-                    gauge = {'axis': {'range': [None, 100]},
-                             'bar': {'color': "red" if risk_score > 90 else "green"}}
-                ))
-                st.plotly_chart(fig_gauge, use_container_width=True)
+                st.subheader("💰 Spend by Category")
+                if fin_data:
+                    df_fin = pd.DataFrame(fin_data)
+                    # Group by category
+                    df_cat = df_fin.groupby('category')['amount'].sum().reset_index()
+                    
+                    fig_bar = px.bar(df_cat, x='category', y='amount', 
+                                     color='category', 
+                                     title="Expenditure Breakdown",
+                                     text_auto='.2s')
+                    fig_bar.update_layout(showlegend=False)
+                    st.plotly_chart(fig_bar, use_container_width=True)
+                else:
+                    st.info("No financial records found.")
                 
             with col_b:
-                st.write("#### Budget Utilization")
-                # Pie Chart Placeholder
-                labels = ['Spent', 'Remaining']
-                values = [current_project.get('actual_spend', 0), current_project.get('budget', 100) - current_project.get('actual_spend', 0)]
-                fig_pie = px.pie(values=values, names=labels, hole=.3)
-                st.plotly_chart(fig_pie, use_container_width=True)
+                st.subheader("👥 Team Roles")
+                if emp_data:
+                    df_emp = pd.DataFrame(emp_data)
+                    # Count roles
+                    df_roles = df_emp['role'].value_counts().reset_index()
+                    df_roles.columns = ['role', 'count']
+                    
+                    fig_pie = px.pie(df_roles, values='count', names='role', hole=0.4, title="Role Distribution")
+                    st.plotly_chart(fig_pie, use_container_width=True)
+                else:
+                    st.info("No team members found.")
+            
+            # Additional Row for Gauge
+             # Calculate metric based on real updated spend
+            spend = current_project.get('actual_spend', 0)
+            budget = current_project.get('budget', 1) 
+            if budget <= 0: budget = 1
+            risk_score = min(round((spend / budget) * 100, 1), 100)
+
+            st.write("### 📉 Project Health")
+            fig_gauge = go.Figure(go.Indicator(
+                mode = "gauge+number",
+                value = risk_score, 
+                title = {'text': "Budget Burn Rate (%)"},
+                gauge = {'axis': {'range': [None, 100]},
+                            'bar': {'color': "red" if risk_score > 90 else "green"},
+                            'threshold': {'line': {'color': "red", 'width': 4}, 'thickness': 0.75, 'value': 90}}
+            ))
+            st.plotly_chart(fig_gauge, use_container_width=True)
 
         with tab2:
             st.write("### Chat with RiskPilot")
