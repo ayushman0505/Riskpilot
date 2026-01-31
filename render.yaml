@@ -15,6 +15,9 @@ services:
         sync: false
       - key: GROQ_API_KEY
         sync: false
+      - key: REDIS_URL
+        sync: false # We will get this from Redis Cloud
+
 
   # 2. The Frontend (Streamlit)
   - type: web
